@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: datastraw-support-crm
+    runtime: node
+    plan: free
+    buildCommand: npm run install:all && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SEED_SAMPLE_DATA
+        value: "true"
+      - key: FRONTEND_URL
+        value: "*"
+      - key: DATABASE_URL
+        sync: false
