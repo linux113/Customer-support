@@ -1,5 +1,7 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import GlowButton from "../components/ui/GlowButton.jsx";
 import { createTicket, toFriendlyError } from "../services/api.js";
 
 const EMPTY = {
@@ -17,9 +19,7 @@ export default function CreateTicket() {
   const [created, setCreated] = useState(null);
 
   function update(field) {
-    return (event) => {
-      setForm((current) => ({ ...current, [field]: event.target.value }));
-    };
+    return (event) => setForm((current) => ({ ...current, [field]: event.target.value }));
   }
 
   async function handleSubmit(event) {
@@ -27,8 +27,7 @@ export default function CreateTicket() {
     setSubmitting(true);
     setError("");
     try {
-      const ticket = await createTicket(form);
-      setCreated(ticket);
+      setCreated(await createTicket(form));
     } catch (err) {
       setError(toFriendlyError(err));
     } finally {
@@ -36,159 +35,82 @@ export default function CreateTicket() {
     }
   }
 
-  if (created) {
-    return (
-      <section className="mx-auto max-w-xl rounded-[28px] border border-ink-900/8 bg-white/85 p-8 text-center shadow-card">
-        <p className="text-xs uppercase tracking-[0.22em] text-moss-500">
-          Ticket opened
-        </p>
-        <h1 className="mt-3 font-display text-4xl">It’s on the queue</h1>
-        <p className="mt-3 text-ink-500">
-          We’ve logged this as{" "}
-          <span className="font-medium text-ink-900">{created.ticket_id}</span>{" "}
-          with status Open.
-        </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <button
-            type="button"
-            onClick={() => navigate(`/tickets/${created.ticket_id}`)}
-            className="rounded-full bg-ink-900 px-5 py-3 text-sm font-medium text-cream-50"
-          >
-            Open ticket
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setCreated(null);
-              setForm(EMPTY);
-            }}
-            className="rounded-full bg-cream-100 px-5 py-3 text-sm font-medium"
-          >
-            File another
-          </button>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_0.72fr]">
-      <section>
-        <Link to="/" className="text-sm text-ink-500 hover:text-ink-900">
-          ← Back to queue
-        </Link>
-        <h1 className="mt-3 font-display text-4xl tracking-tight sm:text-5xl">
-          New ticket
-        </h1>
-        <p className="mt-2 max-w-md text-ink-500">
-          Capture the customer and the issue. A ticket ID is generated on save
-          and the case starts as Open.
-        </p>
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Customer name" required>
-              <input
-                required
-                value={form.customer_name}
-                onChange={update("customer_name")}
-                className="field"
-                placeholder="Rahul Sharma"
-              />
-            </Field>
-            <Field label="Customer email" required>
-              <input
-                required
-                type="email"
-                value={form.customer_email}
-                onChange={update("customer_email")}
-                className="field"
-                placeholder="rahul@gmail.com"
-              />
-            </Field>
-          </div>
-          <Field label="Subject" required>
-            <input
-              required
-              value={form.subject}
-              onChange={update("subject")}
-              className="field"
-              placeholder="Payment Failed"
-            />
-          </Field>
-          <Field label="Description" required>
-            <textarea
-              required
-              rows={6}
-              value={form.description}
-              onChange={update("description")}
-              className="field resize-y"
-              placeholder="What happened, and what should happen next?"
-            />
-          </Field>
-
-          {error && (
-            <p className="rounded-2xl border border-clay-500/30 bg-clay-500/10 px-4 py-3 text-sm text-clay-500">
-              {error}
-            </p>
-          )}
-
-          <div className="flex items-center gap-3 pt-2">
+    <AnimatePresence mode="wait">
+      {created ? (
+        <motion.section
+          key="done"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-panel mx-auto max-w-xl rounded-[28px] p-8 text-center"
+        >
+          <p className="text-xs uppercase tracking-[0.22em] text-emerald-300">Ticket opened</p>
+          <h1 className="mt-3 font-display text-4xl">It’s on the queue</h1>
+          <p className="mt-3 text-white/55">
+            Logged as <span className="text-white">{created.ticket_id}</span> with status Open.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <GlowButton type="button" onClick={() => navigate(`/tickets/${created.ticket_id}`)}>
+              Open ticket
+            </GlowButton>
             <button
-              type="submit"
-              disabled={submitting}
-              className="rounded-full bg-ink-900 px-5 py-3 text-sm font-medium text-cream-50 disabled:opacity-60"
+              type="button"
+              onClick={() => {
+                setCreated(null);
+                setForm(EMPTY);
+              }}
+              className="rounded-full border border-white/15 px-5 py-3 text-sm"
             >
-              {submitting ? "Creating…" : "Create ticket"}
+              File another
             </button>
-            <Link to="/" className="text-sm text-ink-500">
-              Cancel
-            </Link>
           </div>
-        </form>
-      </section>
-
-      <aside className="h-fit rounded-[28px] border border-ink-900/8 bg-ink-900 p-6 text-cream-50 shadow-card">
-        <p className="text-xs uppercase tracking-[0.22em] text-brass-300">
-          How IDs work
-        </p>
-        <h2 className="mt-3 font-display text-3xl">TKT-00X</h2>
-        <p className="mt-3 text-sm leading-6 text-cream-200">
-          The next sequential ticket number is assigned by the API. You will
-          see it immediately after the ticket is stored.
-        </p>
-        <ul className="mt-6 space-y-3 text-sm text-cream-200">
-          <li>Required: name, email, subject, description</li>
-          <li>Invalid emails return a 400 from the API</li>
-          <li>Default status is Open</li>
-        </ul>
-      </aside>
-
-      <style>{`
-        .field {
-          width: 100%;
-          border-radius: 1rem;
-          border: 1px solid rgba(18,25,22,0.1);
-          background: rgba(251,247,239,0.9);
-          padding: 0.8rem 0.95rem;
-          font-size: 0.925rem;
-          outline: none;
-        }
-        .field:focus {
-          box-shadow: 0 0 0 3px rgba(201,164,74,0.28);
-        }
-      `}</style>
-    </div>
+        </motion.section>
+      ) : (
+        <motion.div key="form" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-2xl">
+          <Link to="/" className="text-sm text-white/45 hover:text-white">
+            ← Back to queue
+          </Link>
+          <h1 className="mt-3 font-display text-4xl tracking-tight sm:text-5xl">New ticket</h1>
+          <p className="mt-2 max-w-md text-white/50">
+            Capture the customer and the issue. A ticket ID is generated on save.
+          </p>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Customer name">
+                <input required value={form.customer_name} onChange={update("customer_name")} className="field" placeholder="Rahul Sharma" maxLength={120} />
+              </Field>
+              <Field label="Customer email">
+                <input required type="email" value={form.customer_email} onChange={update("customer_email")} className="field" placeholder="rahul@gmail.com" maxLength={254} />
+              </Field>
+            </div>
+            <Field label="Subject">
+              <input required value={form.subject} onChange={update("subject")} className="field" placeholder="Payment Failed" maxLength={200} />
+            </Field>
+            <Field label="Description">
+              <textarea required rows={6} value={form.description} onChange={update("description")} className="field resize-y" placeholder="What happened, and what should happen next?" maxLength={4000} />
+            </Field>
+            {error && (
+              <p className="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</p>
+            )}
+            <div className="flex items-center gap-3 pt-2">
+              <GlowButton type="submit" disabled={submitting}>
+                {submitting ? "Creating…" : "Create ticket"}
+              </GlowButton>
+              <Link to="/" className="text-sm text-white/45">
+                Cancel
+              </Link>
+            </div>
+          </form>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
-function Field({ label, required, children }) {
+function Field({ label, children }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs uppercase tracking-[0.16em] text-ink-500">
-        {label}
-        {required ? " *" : ""}
-      </span>
+      <span className="mb-1.5 block text-xs uppercase tracking-[0.16em] text-white/40">{label} *</span>
       {children}
     </label>
   );

@@ -1,4 +1,7 @@
+import { motion } from "framer-motion";
 import { NavLink, Outlet } from "react-router-dom";
+import LiveBackground from "./ui/LiveBackground.jsx";
+import PageTransition from "./ui/PageTransition.jsx";
 
 const nav = [
   { to: "/", label: "Queue", end: true },
@@ -7,51 +10,63 @@ const nav = [
 
 export default function Layout() {
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 pb-10 pt-5 sm:px-6 lg:px-8">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="relative min-h-screen text-white">
+      <LiveBackground />
+
+      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-4 pb-10 pt-5 sm:px-6 lg:px-8">
+        <motion.header
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
           <div className="flex items-center gap-3">
-            <div className="relative grid h-11 w-11 place-items-center overflow-hidden rounded-2xl bg-ink-900 text-cream-50 shadow-card">
-              <span className="font-display text-lg leading-none">D</span>
-              <span className="absolute bottom-1 right-1 h-2 w-2 rounded-full bg-brass-400" />
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-white text-sm font-semibold text-zinc-950">
+              G
             </div>
             <div>
-              <p className="font-display text-xl leading-none tracking-tight">
-                Datastraw
-              </p>
-              <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-ink-500">
+              <p className="font-display text-xl leading-none tracking-tight">Ganesh</p>
+              <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-white/40">
                 Support desk
               </p>
             </div>
           </div>
 
-          <nav className="flex items-center gap-1 rounded-full border border-ink-900/10 bg-white/70 p-1 shadow-inset backdrop-blur">
+          <nav className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
             {nav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
-                className={({ isActive }) =>
-                  `rounded-full px-4 py-2 text-sm transition ${
-                    isActive
-                      ? "bg-ink-900 text-cream-50"
-                      : "text-ink-700 hover:bg-ink-900/5"
-                  }`
-                }
+                className="relative rounded-full px-4 py-2 text-sm"
               >
-                {item.label}
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-full bg-white"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    <span className={`relative z-10 ${isActive ? "text-zinc-950" : "text-white/70"}`}>
+                      {item.label}
+                    </span>
+                  </>
+                )}
               </NavLink>
             ))}
           </nav>
-        </header>
+        </motion.header>
 
         <main className="mt-8 flex-1">
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </main>
 
-        <footer className="mt-10 flex flex-col gap-1 border-t border-ink-900/10 pt-4 text-xs text-ink-500 sm:flex-row sm:justify-between">
-          <span>Datastraw internship assessment · Customer Support CRM</span>
-          <span>Tickets persist on the server. Notes are internal only.</span>
+        <footer className="mt-10 border-t border-white/10 pt-4 text-center text-xs text-white/35">
+          All rights reserved by Anonmoyous Developer
         </footer>
       </div>
     </div>

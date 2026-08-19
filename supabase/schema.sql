@@ -1,4 +1,4 @@
--- Ganesh Support CRM schema for Supabase / PostgreSQL
+-- Run this in the Supabase SQL editor.
 
 CREATE TABLE IF NOT EXISTS tickets (
   id SERIAL PRIMARY KEY,
@@ -22,3 +22,8 @@ CREATE TABLE IF NOT EXISTS notes (
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
 CREATE INDEX IF NOT EXISTS idx_tickets_created ON tickets(created_at);
 CREATE INDEX IF NOT EXISTS idx_notes_ticket ON notes(ticket_id);
+
+ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+
+-- Public anon key cannot read/write. The Express API uses DATABASE_URL (server role).

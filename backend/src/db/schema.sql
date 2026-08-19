@@ -1,4 +1,4 @@
--- Datastraw Support CRM schema (SQLite)
+-- Ganesh Support CRM schema (SQLite)
 
 CREATE TABLE IF NOT EXISTS tickets (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,8 +1,13 @@
 import axios from "axios";
 
+const headers = { "Content-Type": "application/json" };
+if (import.meta.env.VITE_WRITE_KEY) {
+  headers["X-Write-Key"] = import.meta.env.VITE_WRITE_KEY;
+}
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "/api",
-  headers: { "Content-Type": "application/json" },
+  headers,
   timeout: 15000,
 });
 

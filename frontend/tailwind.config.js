@@ -41,6 +41,21 @@ export default {
         card: "0 1px 0 rgba(18,25,22,0.04), 0 12px 32px -16px rgba(18,25,22,0.28)",
         inset: "inset 0 1px 0 rgba(255,255,255,0.5)",
       },
+      animation: {
+        "star-movement-bottom":
+          "star-movement-bottom linear infinite alternate",
+        "star-movement-top": "star-movement-top linear infinite alternate",
+      },
+      keyframes: {
+        "star-movement-bottom": {
+          "0%": { transform: "translate(0%, 0%)", opacity: "1" },
+          "100%": { transform: "translate(-100%, 0%)", opacity: "0" },
+        },
+        "star-movement-top": {
+          "0%": { transform: "translate(0%, 0%)", opacity: "1" },
+          "100%": { transform: "translate(100%, 0%)", opacity: "0" },
+        },
+      },
     },
   },
   plugins: [],

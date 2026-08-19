@@ -1,16 +1,19 @@
 services:
   - type: web
-    name: datastraw-support-crm
+    name: ganesh-support-crm
     runtime: node
     plan: free
     buildCommand: npm run install:all && npm run build
     startCommand: npm start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
       - key: SEED_SAMPLE_DATA
         value: "true"
       - key: FRONTEND_URL
-        value: "*"
+        sync: false
       - key: DATABASE_URL
+        sync: false
+      - key: WRITE_KEY
         sync: false

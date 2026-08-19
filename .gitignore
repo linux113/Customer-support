@@ -28,7 +28,12 @@ backend/data/
 .vscode/
 Thumbs.db
 
+# Security scans
+strix_runs/
+
 # Coverage / cache
 coverage/
 .cache/
 .vite/
+.vercel/
+frontend/public/avatars/

@@ -1,6 +1,6 @@
-# Datastraw Customer Support CRM
+# Ganesh Customer Support CRM
 
-A production-ready support-desk MVP for the Datastraw internship assessment. Agents can file tickets, search and filter the queue, open a full case record, change status, and leave internal notes. Managers get live workload statistics.
+A production-ready support-desk MVP. Agents can file tickets, search and filter the queue, open a full case record, change status, and leave internal notes. Managers get live workload statistics.
 
 **Live application:** served from this repository once the backend is running (frontend is built into `frontend/dist` and hosted by Express).
 
@@ -8,7 +8,7 @@ A production-ready support-desk MVP for the Datastraw internship assessment. Age
 
 ## Overview
 
-Support teams need a single, fast place to capture customer issues and keep a written trail. Datastraw Support Desk is a focused CRM: create a ticket, find it again, update it, and see how the queue is moving.
+Support teams need a single, fast place to capture customer issues and keep a written trail. Ganesh Support Desk is a focused CRM: create a ticket, find it again, update it, and see how the queue is moving.
 
 The app is intentionally small. One REST API, two SQL tables, three screens.
 
@@ -224,17 +224,51 @@ The Express server serves `frontend/dist` and the `/api` routes from the same or
 2. **Render:** deploy `backend/`, start `node src/server.js`, set `DATABASE_URL`, `FRONTEND_URL=https://your-app.vercel.app`.
 3. **Vercel:** deploy `frontend/`, set `VITE_API_URL=https://your-api.onrender.com/api`.
 
-Restrict CORS to the Vercel origin. Keep secrets in the host’s env UI, not in git.
+Full host-by-host steps: [`docs/DEPLOY.md`](docs/DEPLOY.md).
+
+### Option C — Vercel (frontend + API)
+
+One project, same origin.
+
+1. Push this repo to GitHub.
+2. Import it in [Vercel](https://vercel.com/new).
+3. Leave build settings as `vercel.json` (install + Vite build + `/api` function).
+4. Optional: set `DATABASE_URL` for Supabase so tickets persist across cold starts. Without it the API uses a JSON store in `/tmp` and reseeds sample tickets.
+5. Set `SEED_SAMPLE_DATA=true`.
+
+Local preview of the production build:
+
+```bash
+npm run install:all
+npm run build
+npm start
+```
+
+## Testing checklist
+
+- [x] Create ticket → generated `TKT-00X`, timestamp, status Open
+- [x] Dashboard lists tickets
+- [x] Search by name, email, ID, subject, description (updates while typing)
+- [x] Filter All / Open / In Progress / Closed
+- [x] Open ticket details
+- [x] Change status
+- [x] Add internal note
+- [x] Refresh — data still there
+- [x] Invalid email → 400
+- [x] Missing fields → 400
+- [x] Unknown ticket → 404
+- [x] Layout works on a narrow viewport
 
 ## Screenshots
 
-Run the app and capture:
+Add three captures to `docs/` after you run the app:
 
 1. Dashboard with statistics, search and filters
 2. Create-ticket confirmation showing the generated ID
 3. Ticket detail with status change and notes
 
-Place images in a `docs/` folder if you add them to the repo.
+PRD audit: [`docs/PRD-COMPLIANCE.md`](docs/PRD-COMPLIANCE.md)  
+Submission email draft: [`docs/SUBMISSION.md`](docs/SUBMISSION.md)
 
 ## Demo video
 

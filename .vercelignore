@@ -1,0 +1,10 @@
+backend/data
+backend/.env
+frontend/.env
+**/.env
+**/*.db
+**/*.sqlite
+.git
+docs
+*.md
+!README.md

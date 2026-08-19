@@ -1,25 +1,26 @@
-function notFound(req, res, next) {
+function notFound(req, res) {
   res.status(404).json({
     error: "Not Found",
-    message: `No route for ${req.method} ${req.originalUrl}`,
+    message: "That resource does not exist.",
   });
 }
 
 function errorHandler(err, req, res, next) {
-  console.error("[api]", err);
+  console.error("[api]", err && err.message ? err.message : err);
 
   if (res.headersSent) {
     return next(err);
   }
 
-  const status = err.status || 500;
-  res.status(status).json({
-    error: status === 500 ? "Internal Server Error" : err.message,
+  const status = Number(err.status) || 500;
+  const safeClientStatus = status >= 400 && status < 500 ? status : 500;
+
+  res.status(safeClientStatus).json({
+    error: safeClientStatus === 500 ? "Internal Server Error" : "Request Error",
     message:
-      status === 500
-        ? "Something went wrong while talking to the database. Please try again."
-        : err.message,
-    details: err.details || undefined,
+      safeClientStatus === 500
+        ? "Something went wrong. Please try again."
+        : err.message || "Invalid request.",
   });
 }
 

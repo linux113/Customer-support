@@ -3,6 +3,8 @@ const path = require("path");
 
 const DATABASE_URL = process.env.DATABASE_URL || "";
 const usePostgres = Boolean(DATABASE_URL && DATABASE_URL.startsWith("postgres"));
+const onVercel = Boolean(process.env.VERCEL);
+const forceJson = String(process.env.USE_JSON_DB).toLowerCase() === "true";
 
 function nowIso() {
   return new Date().toISOString();
@@ -10,9 +12,10 @@ function nowIso() {
 
 function createSqlite() {
   const Database = require("better-sqlite3");
-  const dbPath =
-    process.env.SQLITE_PATH ||
-    path.join(__dirname, "../../data/support.db");
+  const dbPath = onVercel
+    ? "/tmp/support.db"
+    : process.env.SQLITE_PATH ||
+      path.join(__dirname, "../../data/support.db");
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
   const raw = new Database(dbPath);
@@ -45,9 +48,10 @@ function createPostgres() {
   const { Pool } = require("pg");
   const pool = new Pool({
     connectionString: DATABASE_URL,
-    ssl: DATABASE_URL.includes("supabase")
-      ? { rejectUnauthorized: false }
-      : undefined,
+    ssl:
+      DATABASE_URL.includes("supabase") || DATABASE_URL.includes("sslmode=require")
+        ? { rejectUnauthorized: false }
+        : undefined,
   });
 
   const toPg = (sql) => {
@@ -102,7 +106,22 @@ function createPostgres() {
   };
 }
 
-const db = usePostgres ? createPostgres() : createSqlite();
+function createStore() {
+  if (usePostgres) return createPostgres();
+  if (forceJson || onVercel) {
+    const { createJsonStore } = require("./jsonStore");
+    return createJsonStore();
+  }
+  try {
+    return createSqlite();
+  } catch (error) {
+    console.warn("[db] SQLite unavailable, using JSON store:", error.message);
+    const { createJsonStore } = require("./jsonStore");
+    return createJsonStore();
+  }
+}
+
+const db = createStore();
 
 async function ensurePostgresSchema() {
   if (db.dialect !== "postgres") return;

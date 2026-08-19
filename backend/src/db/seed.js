@@ -54,7 +54,7 @@ const SAMPLE_TICKETS = [
   {
     ticket_id: "TKT-006",
     customer_name: "Meera Iyer",
-    customer_email: "meera.iyer@datastraw.in",
+    customer_email: "meera.iyer@ganesh.in",
     subject: "Duplicate subscription charge",
     description:
       "Billed twice for the Pro plan on 12 Aug. Need refund of the second charge.",
